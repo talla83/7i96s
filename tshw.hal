@@ -1,15 +1,205 @@
+#raw  
+#
+# sserial_port_0=0
+# Firmware bietet im Software Mode 0 das 6 Inputs als Umschalter funktionieren
+# Umschalter zwischen Input 01 02 03
+# Umschalter zwischen Input 04 05 06
+# 
+# sserial_port_0=1
+# Software Mode 1 = alles normal ohne Umschalterfunktion
+#
+#accept
+#net io-0 hm2_7i96s.0.TsHW.0.0.input-00 => hm2_7i96s.0.TsHW.0.0.output-00
+#
+#Z
+#net io-1 hm2_7i96s.0.TsHW.0.0.input-01 => hm2_7i96s.0.TsHW.0.0.output-01
+#
+#Y
+#net io-2 hm2_7i96s.0.TsHW.0.0.input-02 => hm2_7i96s.0.TsHW.0.0.output-02
+#
+#X
+#net io-3 hm2_7i96s.0.TsHW.0.0.input-03 => hm2_7i96s.0.TsHW.0.0.output-03
+#
+#0,1
+#net io-4 hm2_7i96s.0.TsHW.0.0.input-04 => hm2_7i96s.0.TsHW.0.0.output-04
+#
+#0,01
+#net io-5 hm2_7i96s.0.TsHW.0.0.input-05 => hm2_7i96s.0.TsHW.0.0.output-05
+#
+#0,001
+#net io-6 hm2_7i96s.0.TsHW.0.0.input-06 => hm2_7i96s.0.TsHW.0.0.output-06
+#
+#stop
+#net io-7 hm2_7i96s.0.TsHW.0.0.input-07 => hm2_7i96s.0.TsHW.0.0.output-07
+#
+#start
+#net io-8 hm2_7i96s.0.TsHW.0.0.input-08 => hm2_7i96s.0.TsHW.0.0.output-08
+#
+#zero
+#net io-9 hm2_7i96s.0.TsHW.0.0.input-09 => hm2_7i96s.0.TsHW.0.0.output-09
+#
+#estop
+#net io-10     hm2_7i96s.0.TsHW.0.0.input-10 => 
+#net io-10-not hm2_7i96s.0.TsHW.0.0.input-10-not => 
 
 
-net io-0 hm2_7i96s.0.TsHW.0.0.input-00 => hm2_7i96s.0.TsHW.0.0.output-00
-net io-1 hm2_7i96s.0.TsHW.0.0.input-01 => hm2_7i96s.0.TsHW.0.0.output-01
-net io-2 hm2_7i96s.0.TsHW.0.0.input-02 => hm2_7i96s.0.TsHW.0.0.output-02
-net io-3 hm2_7i96s.0.TsHW.0.0.input-03 => hm2_7i96s.0.TsHW.0.0.output-03
-net io-4 hm2_7i96s.0.TsHW.0.0.input-04 => hm2_7i96s.0.TsHW.0.0.output-04
-net io-5 hm2_7i96s.0.TsHW.0.0.input-05 => hm2_7i96s.0.TsHW.0.0.output-05
-net io-6 hm2_7i96s.0.TsHW.0.0.input-06 => hm2_7i96s.0.TsHW.0.0.output-06
-net io-7 hm2_7i96s.0.TsHW.0.0.input-07 => hm2_7i96s.0.TsHW.0.0.output-07
-net io-8 hm2_7i96s.0.TsHW.0.0.input-08 => hm2_7i96s.0.TsHW.0.0.output-08
-net io-9 hm2_7i96s.0.TsHW.0.0.input-09 => hm2_7i96s.0.TsHW.0.0.output-09
-net io-10 hm2_7i96s.0.TsHW.0.0.input-10 => hm2_7i96s.0.TsHW.0.0.output-10
-net io-11 hm2_7i96s.0.TsHW.0.0.input-11 => hm2_7i96s.0.TsHW.0.0.output-11
+
+
+###################################################################
+# TsHW Talla simple Hand Wheel  LinuxCNC Version 2.9
+# TsHW V4 Platine 16xIN 16xOUT 2xANA 1xENC 
+# 09.04.2023
+###################################################################
+# ilowpass und and2   
+#
+# Wenn diese schon in einer anderen HAL geladen bzw. verwendet werden,
+# dann muss dies in der Struktur beachtet werden.
+# Denn doppeltes laden von Komponenten ist nicht möglich.
+# Es müssen die loadrt Befehle auskommentiert werden und
+# die loadrt Befehle in den anderen HAL Dateien mit diesen Namen 
+# ergänzt werden.
+# addf kann hier bleiben :-)
+# 
+# Damit der Zero der Achsen geht müssen in der INI die MDI Commands 
+# angelegt werden 
+#
+#	[HALUI]
+#	MDI_COMMAND = G10 L20 P1 X0
+#	MDI_COMMAND = G10 L20 P1 Y0
+#	MDI_COMMAND = G10 L20 P1 Z0
+#
+#
+#
+# Mit setp shw.enc-smooth.gain  kann die Beschleunigung eingestellt werden.
+# und mit setp shw.enc-smooth.scale die Übersetzung
+#
+###################################################################
+
+####################
+##      TsHW      ##
+####################
+
+loadrt ilowpass names=tshw.enc-smooth
+addf tshw.enc-smooth servo-thread
+
+setp tshw.enc-smooth.scale 1
+setp tshw.enc-smooth.gain  0.025
+
+setp axis.x.jog-vel-mode 1
+setp axis.y.jog-vel-mode 1
+setp axis.z.jog-vel-mode 1
+
+loadrt and2 names=tshw.ena-x,tshw.ena-y,tshw.ena-z,tshw.zero-x,tshw.zero-y,tshw.zero-z
+
+addf tshw.ena-x servo-thread
+addf tshw.ena-y servo-thread
+addf tshw.ena-z servo-thread
+
+addf tshw.zero-x servo-thread
+addf tshw.zero-y servo-thread
+addf tshw.zero-z servo-thread
+
+loadrt mux8 names=tshw.step-choice
+addf tshw.step-choice servo-thread
+
+net tshw.key-0001  => tshw.step-choice.sel0
+net tshw.key-001   => tshw.step-choice.sel1
+net tshw.key-01    => tshw.step-choice.sel2
+
+setp tshw.step-choice.in1 0.001
+setp tshw.step-choice.in2 0.01
+setp tshw.step-choice.in4 0.1
+
+net tshw.step-choice <= tshw.step-choice.out
+net tshw.step-choice => axis.x.jog-scale
+net tshw.step-choice => axis.y.jog-scale
+net tshw.step-choice => axis.z.jog-scale
+
+net tshw.key-0001  <= hm2_7i96s.0.TsHW.0.0.input-06
+net tshw.key-0001  => hm2_7i96s.0.TsHW.0.0.output-06
+net tshw.key-001   <= hm2_7i96s.0.TsHW.0.0.input-05
+net tshw.key-001   => hm2_7i96s.0.TsHW.0.0.output-05
+net tshw.key-01    <= hm2_7i96s.0.TsHW.0.0.input-04
+net tshw.key-01    => hm2_7i96s.0.TsHW.0.0.output-04
+
+net tshw.key-x <= hm2_7i96s.0.TsHW.0.0.input-03
+net tshw.key-x => hm2_7i96s.0.TsHW.0.0.output-03
+net tshw.key-x => tshw.ena-x.in0
+net tshw.ena-x tshw.ena-x.out => axis.x.jog-enable
+
+net tshw.key-y <= hm2_7i96s.0.TsHW.0.0.input-02
+net tshw.key-y => hm2_7i96s.0.TsHW.0.0.output-02
+net tshw.key-y => tshw.ena-y.in0
+net tshw.ena-y tshw.ena-y.out => axis.y.jog-enable
+
+net tshw.key-z <= hm2_7i96s.0.TsHW.0.0.input-01
+net tshw.key-z => hm2_7i96s.0.TsHW.0.0.output-01
+net tshw.key-z => tshw.ena-z.in0
+net tshw.ena-z tshw.ena-z.out => axis.z.jog-enable
+
+net tshw.key-ena <= hm2_7i96s.0.TsHW.0.0.input-00
+net tshw.key-ena => tshw.ena-x.in1
+net tshw.key-ena => tshw.ena-y.in1
+net tshw.key-ena => tshw.ena-z.in1
+net tshw.key-ena => halui.mode.manual
+net tshw.key-ena => axisui.notifications-clear
+net tshw.key-ena => hm2_7i96s.0.TsHW.0.0.output-00
+
+net tshw.enc-00 tshw.enc-smooth.in <= hm2_7i96s.0.TsHW.0.0.encoder-0.count
+net tshw.enc-01 <= tshw.enc-smooth.out
+net tshw.enc-01 => axis.x.jog-counts
+net tshw.enc-01 => axis.y.jog-counts
+net tshw.enc-01 => axis.z.jog-counts
+
+net tshw.key-03 <= hm2_7i96s.0.TsHW.0.0.input-08
+net tshw.key-03 => halui.program.run
+net tshw.key-03 => halui.mode.auto
+net tshw.led-03 <= halui.program.is-running
+net tshw.led-03 => hm2_7i96s.0.TsHW.0.0.output-08
+
+net tshw.key-04 <= hm2_7i96s.0.TsHW.0.0.input-09 
+net tshw.key-04 => hm2_7i96s.0.TsHW.0.0.output-09
+net tshw.key-04 => tshw.zero-x.in1
+net tshw.key-04 => tshw.zero-y.in1
+net tshw.key-04 => tshw.zero-z.in1
+net tshw.key-04 => halui.mode.mdi
+
+net tshw.key-z => tshw.zero-z.in0
+net tshw.key-x => tshw.zero-x.in0
+net tshw.key-y => tshw.zero-y.in0
+
+net tshw.zero-x tshw.zero-x.out => halui.mdi-command-00
+net tshw.zero-y tshw.zero-y.out => halui.mdi-command-01
+net tshw.zero-z tshw.zero-z.out => halui.mdi-command-02
+
+net tshw.key-09 <= hm2_7i96s.0.TsHW.0.0.input-07
+net tshw.key-09 => halui.program.stop
+net tshw.led-09 <= halui.program.is-idle
+net tshw.led-09 => hm2_7i96s.0.TsHW.0.0.output-07
+
+net tshw.key-10 <= hm2_7i96s.0.TsHW.0.0.input-10
+
+##### conv #####
+
+loadrt conv_u32_s32 names=tshw.spindle-conv,tshw.feed-conv
+
+addf tshw.spindle-conv servo-thread
+addf tshw.feed-conv servo-thread
+
+# Spindel -override-
+setp halui.spindle.0.override.direct-value 1
+setp halui.spindle.0.override.scale 0.00393
+
+net tshw.spindle-conv hm2_7i96s.0.TsHW.0.0.poti_2 => tshw.spindle-conv.in
+net tshw.spindle-poti tshw.spindle-conv.out => halui.spindle.0.override.counts
+
+#
+# Vorschub -override-
+setp halui.feed-override.direct-value 1
+setp halui.feed-override.scale 0.00393
+
+net tshw.feed-conv hm2_7i96s.0.TsHW.0.0.poti_1 => tshw.feed-conv.in
+net tshw.feed-poti tshw.feed-conv.out => halui.feed-override.counts
+
+###################################################################
 
