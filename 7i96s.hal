@@ -1,7 +1,4 @@
-# Erstellt von PNCconf am Sun Mar 26 14:33:09 2023
-# Using LinuxCNC version:  2.8
-# Änderungen an dieser Datei werden beim nächsten
-# overwritten when you run PNCconf again
+# Talla83
 
 loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
